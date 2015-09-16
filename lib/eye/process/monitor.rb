@@ -11,8 +11,16 @@ private
       :no_pid_file
     elsif process_pid_running?(newpid)
       self.pid = newpid
-      info "load_external_pid_file: process <#{self.pid}> from pid_file found and already running"
-      :ok
+      res = compare_identity
+      if res == :fail
+        warn "load_external_pid_file: process <#{self.pid}> from pid_file failed check_identity"
+        :bad_identity
+      else
+        str = "load_external_pid_file: process <#{self.pid}> from pid_file found and already running"
+        str += ", (identity: #{res})" if res != :ok
+        info str
+        :ok
+      end
     else
       @last_loaded_pid = newpid
       self.pid = nil
@@ -56,7 +64,7 @@ private
           msg += ", pid_file write failed! O_o"
         end
 
-      elsif (changed_ago_s > self[:auto_update_pidfile_grace]) && process_pid_running?(ppid)
+      elsif (changed_ago_s > self[:auto_update_pidfile_grace]) && process_pid_running?(ppid) && (compare_identity(ppid) != :fail)
         msg += ", trusting this change, and now monitor <#{ppid}>"
         self.pid = ppid
 
@@ -72,6 +80,19 @@ private
     end
 
     warn msg
+  end
+
+  def check_identity
+    res = compare_identity
+    info "check_identity: process <#{self.pid}> identity is #{res}" if res != :ok
+    if res == :fail
+      notify :info, 'crashed by identity!'
+      switch :crashed, Eye::Reason.new(:crashed_by_identity)
+      self.pid = nil
+      false
+    else
+      true
+    end
   end
 
   def check_crash

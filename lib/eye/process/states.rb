@@ -27,7 +27,7 @@ class Eye::Process
     end
 
     event :crashed do
-      transition [:starting, :restarting, :up] => :down
+      transition [:starting, :restarting, :up, :stopping] => :down
     end
 
     event :stopping do
