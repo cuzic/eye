@@ -282,6 +282,9 @@ private
   end
 
   def execute_user_command(name, cmd)
+    check_identity
+
+    return unless self.pid
     info "executing user command #{name} #{cmd.inspect}"
 
     # cmd is string, or array of signals
