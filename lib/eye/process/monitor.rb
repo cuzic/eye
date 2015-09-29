@@ -7,7 +7,7 @@ private
 
     if !newpid
       self.pid = nil
-      info "load_external_pid_file: no pid_file"
+      info "load_external_pid_file: pid_file not found"
       :no_pid_file
     elsif process_pid_running?(newpid)
       self.pid = newpid
