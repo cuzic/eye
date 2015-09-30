@@ -51,8 +51,11 @@ private
     args = []
     args += ['--dir', Eye::Local.dir] if Eye::Local.local_runner
 
+    # opts = {:out => '/dev/null', :err => '/dev/null', :in => '/dev/null',
+    #         :chdir => '/', :pgroup => true}
+    #
     opts = {:out => '/dev/null', :err => '/dev/null', :in => '/dev/null',
-            :chdir => '/', :pgroup => true}
+            :chdir => Eye::Local.dir, :pgroup => true}
 
     pid = Process.spawn(ruby_path, loader_path, *args, opts)
     Process.detach(pid)
